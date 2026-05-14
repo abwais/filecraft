@@ -1,21 +1,13 @@
-package com.filecraft.entity;
-
-import jakarta.persistence.*;
+package com.filecraft.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "workspaces")
-public class Workspace {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class WorkspaceResponse {
+
     private UUID id;
-    @Column(nullable = false, length  =100)
     private String name;
-    @Column(nullable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     public UUID getId() {
@@ -50,16 +42,6 @@ public class Workspace {
         this.updatedAt = updatedAt;
     }
 
-    @PrePersist
-    public void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
 
-    @PreUpdate
-    public void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
 
 }
