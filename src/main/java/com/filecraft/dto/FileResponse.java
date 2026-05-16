@@ -1,66 +1,27 @@
-package com.filecraft.entity;
+package com.filecraft.dto;
 
 import com.filecraft.entity.enums.FileKind;
 import com.filecraft.entity.enums.FileStatus;
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "file_assets")
-public class FileAsset {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class FileResponse {
+
     private UUID id;
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "workspace_id")
-    private Workspace workspace;
-    @ManyToOne
-    @JoinColumn(name ="parent_file_id")
-    private FileAsset parentFile;
-    @Column(nullable = false)
+    private UUID workspaceId;
     private String originalName;
-    @Column(nullable = false)
     private String displayName;
-    @Column(nullable = false)
     private String storedName;
-    @Column(nullable = false)
     private String mimeType;
-    @Column(nullable = false)
     private String extension;
-    @Column(nullable = false)
     private Long size;
-    @Column(name ="sha256_hash", nullable = false, length = 64)
     private String sha256Hash;
-    @Column(nullable = false)
     private String storagePath;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private FileKind fileKind;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private FileStatus fileStatus;
-    @Column(nullable = false)
     private LocalDateTime createdAt;
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void onCreate(){
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-
-        if(this.fileStatus == null){
-            this.fileStatus = FileStatus.ACTIVE;
-        }
-    }
-
-    @PreUpdate
-    public void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
 
     public UUID getId() {
         return id;
@@ -70,20 +31,12 @@ public class FileAsset {
         this.id = id;
     }
 
-    public Workspace getWorkspace() {
-        return workspace;
+    public UUID getWorkspaceId() {
+        return workspaceId;
     }
 
-    public void setWorkspace(Workspace workspace) {
-        this.workspace = workspace;
-    }
-
-    public FileAsset getParentFile() {
-        return parentFile;
-    }
-
-    public void setParentFile(FileAsset parentFile) {
-        this.parentFile = parentFile;
+    public void setWorkspaceId(UUID workspaceId) {
+        this.workspaceId = workspaceId;
     }
 
     public String getOriginalName() {
@@ -166,20 +119,19 @@ public class FileAsset {
         this.fileStatus = fileStatus;
     }
 
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
