@@ -10,7 +10,7 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileStorageService {
 
-    @Value("${Filecraft.storage.root}")
+    @Value("${filecraft.storage.root}")
     private String storageRoot;
 
     public Path saveFile(InputStream inputStream, String workspaceId, String storedFileName) throws Exception{

@@ -7,7 +7,7 @@ import com.filecraft.repository.WorkspaceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
+import java.util.List;
 @Service
 public class WorkspaceService {
 
@@ -39,6 +39,14 @@ public class WorkspaceService {
         response.setUpdatedAt(workspace.getUpdatedAt());
         return response;
     }
+
+    public List<WorkspaceResponse> getAllWorkspaces() {
+        return workspaceRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
 
 }
 

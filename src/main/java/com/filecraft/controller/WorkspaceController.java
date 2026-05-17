@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/workspaces")
@@ -26,6 +27,11 @@ public class WorkspaceController {
     @GetMapping("/{id}")
     public WorkspaceResponse getWorkspace(@PathVariable UUID id){
         return workspaceService.getWorkspace(id);
+    }
+
+    @GetMapping
+    public List<WorkspaceResponse> getAllWorkspaces() {
+        return workspaceService.getAllWorkspaces();
     }
 
 }

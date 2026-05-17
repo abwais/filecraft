@@ -22,6 +22,8 @@ import java.util.UUID;
 
 import java.util.List;
 
+import com.filecraft.exception.FileDoesNotBelongToWorkspaceException;
+import com.filecraft.exception.FileNotFoundException;
 @Service
 public class FileService {
 
@@ -144,10 +146,10 @@ public class FileService {
                 .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+                .orElseThrow(() -> new FileNotFoundException(fileId));
 
         if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
-            throw new IllegalArgumentException("File does not belong to workspace: " + workspaceId);
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
         }
 
         return toResponse(fileAsset);
@@ -158,10 +160,10 @@ public class FileService {
                 .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
-                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+                .orElseThrow(() -> new FileNotFoundException(fileId));
 
         if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
-            throw new IllegalArgumentException("File does not belong to workspace: " + workspaceId);
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
         }
 
         Path filePath = fileStorageService.getFilePath(fileAsset.getStoragePath());
@@ -169,7 +171,7 @@ public class FileService {
         Resource resource = new UrlResource(filePath.toUri());
 
         if (!resource.exists() || !resource.isReadable()) {
-            throw new IllegalArgumentException("File cannot be read: " + fileId);
+            throw new FileNotFoundException(fileId);
         }
 
         return resource;
