@@ -27,4 +27,8 @@ public class FileStorageService {
         return targetPath;
     }
 
+    public Path getFilePath(String storagePath) {
+        return Path.of(storagePath);
+    }
+
 }

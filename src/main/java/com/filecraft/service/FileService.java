@@ -11,11 +11,16 @@ import com.filecraft.repository.WorkspaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.UUID;
+
+import java.util.List;
 
 @Service
 public class FileService {
@@ -123,4 +128,51 @@ public class FileService {
 
         return response;
     }
+
+    public List<FileResponse> getFilesByWorkspace(UUID workspaceId) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        return fileAssetRepository.findByWorkspaceIdOrderByCreatedAtDesc(workspace.getId())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public FileResponse getFileById(UUID workspaceId, UUID fileId) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new IllegalArgumentException("File does not belong to workspace: " + workspaceId);
+        }
+
+        return toResponse(fileAsset);
+    }
+
+    public Resource downloadFile(UUID workspaceId, UUID fileId) throws Exception {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new IllegalArgumentException("File not found: " + fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new IllegalArgumentException("File does not belong to workspace: " + workspaceId);
+        }
+
+        Path filePath = fileStorageService.getFilePath(fileAsset.getStoragePath());
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new IllegalArgumentException("File cannot be read: " + fileId);
+        }
+
+        return resource;
+    }
+
 }

@@ -44,4 +44,4 @@ src/main/resources/application-local.yml
 
 ### Local storage ###
 filecraft-storage/
-C:/filecraft-storage/
+uploads/
