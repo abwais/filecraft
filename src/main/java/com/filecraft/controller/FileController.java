@@ -2,9 +2,12 @@ package com.filecraft.controller;
 
 import com.filecraft.dto.FileResponse;
 import com.filecraft.service.FileService;
+import com.filecraft.dto.RenameFileRequest;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,6 +39,13 @@ public class FileController {
         return fileService.getFilesByWorkspace(workspaceId);
     }
 
+    @GetMapping("/deleted")
+    public List<FileResponse> getDeletedFilesByWorkspace(
+            @PathVariable UUID workspaceId
+    ) {
+        return fileService.getDeletedFilesByWorkspace(workspaceId);
+    }
+
     @GetMapping("/{fileId}")
     public FileResponse getFileById(
             @PathVariable UUID workspaceId,
@@ -60,5 +70,42 @@ public class FileController {
                 )
                 .body(resource);
     }
+
+
+    @DeleteMapping("/{fileId}")
+    public void deleteFile(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID fileId
+    ) {
+        fileService.deleteFile(workspaceId, fileId);
+    }
+
+    @DeleteMapping("/{fileId}/permanent")
+    public void permanentlyDeleteFile(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID fileId
+    ) throws Exception {
+        fileService.permanentlyDeleteFile(workspaceId, fileId);
+    }
+
+
+    @PatchMapping("/{fileId}/rename")
+    public FileResponse renameFile(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID fileId,
+            @Valid @RequestBody RenameFileRequest request
+    ) {
+        return fileService.renameFile(workspaceId, fileId, request);
+    }
+
+    @PatchMapping("/{fileId}/restore")
+    public FileResponse restoreFile(
+            @PathVariable UUID workspaceId,
+            @PathVariable UUID fileId
+    ) {
+        return fileService.restoreFile(workspaceId, fileId);
+    }
+
+
 
 }

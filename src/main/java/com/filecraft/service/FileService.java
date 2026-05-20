@@ -5,12 +5,15 @@ import com.filecraft.entity.FileAsset;
 import com.filecraft.entity.Workspace;
 import com.filecraft.entity.enums.FileKind;
 import com.filecraft.entity.enums.FileStatus;
-import com.filecraft.exception.WorkspaceNotFoundException;
 import com.filecraft.repository.FileAssetRepository;
 import com.filecraft.repository.WorkspaceRepository;
+import com.filecraft.dto.RenameFileRequest;
+
+import com.filecraft.exception.WorkspaceNotFoundException;
+import com.filecraft.exception.FileNotDeletedException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -24,6 +27,7 @@ import java.util.List;
 
 import com.filecraft.exception.FileDoesNotBelongToWorkspaceException;
 import com.filecraft.exception.FileNotFoundException;
+import com.filecraft.exception.FileAlreadyDeletedException;
 @Service
 public class FileService {
 
@@ -135,7 +139,11 @@ public class FileService {
         Workspace workspace = workspaceRepository.findById(workspaceId)
                 .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
 
-        return fileAssetRepository.findByWorkspaceIdOrderByCreatedAtDesc(workspace.getId())
+        return fileAssetRepository
+                .findByWorkspaceIdAndFileStatusOrderByCreatedAtDesc(
+                        workspace.getId(),
+                        FileStatus.ACTIVE
+                )
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -152,6 +160,10 @@ public class FileService {
             throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
         }
 
+        if (fileAsset.getFileStatus() == FileStatus.DELETED) {
+            throw new FileNotFoundException(fileId);
+        }
+
         return toResponse(fileAsset);
     }
 
@@ -166,6 +178,10 @@ public class FileService {
             throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
         }
 
+        if (fileAsset.getFileStatus() == FileStatus.DELETED) {
+            throw new FileNotFoundException(fileId);
+        }
+
         Path filePath = fileStorageService.getFilePath(fileAsset.getStoragePath());
 
         Resource resource = new UrlResource(filePath.toUri());
@@ -176,5 +192,113 @@ public class FileService {
 
         return resource;
     }
+
+    public void deleteFile(UUID workspaceId, UUID fileId) {
+
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException(fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
+        }
+
+        if (fileAsset.getFileStatus() == FileStatus.DELETED) {
+            throw new FileAlreadyDeletedException(fileId);
+        }
+
+        fileAsset.setFileStatus(FileStatus.DELETED);
+
+        fileAssetRepository.save(fileAsset);
+    }
+
+    public FileResponse renameFile(
+            UUID workspaceId,
+            UUID fileId,
+            RenameFileRequest request
+    ) {
+
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException(fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
+        }
+
+        if (fileAsset.getFileStatus() == FileStatus.DELETED) {
+            throw new FileNotFoundException(fileId);
+        }
+
+        fileAsset.setDisplayName(request.getDisplayName());
+
+        FileAsset savedFileAsset = fileAssetRepository.save(fileAsset);
+
+        return toResponse(savedFileAsset);
+    }
+
+    public List<FileResponse> getDeletedFilesByWorkspace(UUID workspaceId) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        return fileAssetRepository
+                .findByWorkspaceIdAndFileStatusOrderByCreatedAtDesc(
+                        workspace.getId(),
+                        FileStatus.DELETED
+                )
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public FileResponse restoreFile(UUID workspaceId, UUID fileId) {
+
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException(fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
+        }
+
+        if (fileAsset.getFileStatus() != FileStatus.DELETED) {
+            throw new FileNotDeletedException(fileId);
+        }
+
+        fileAsset.setFileStatus(FileStatus.ACTIVE);
+
+        FileAsset savedFileAsset = fileAssetRepository.save(fileAsset);
+
+        return toResponse(savedFileAsset);
+    }
+
+    public void permanentlyDeleteFile(UUID workspaceId, UUID fileId) throws Exception {
+
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+
+        FileAsset fileAsset = fileAssetRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException(fileId));
+
+        if (!fileAsset.getWorkspace().getId().equals(workspace.getId())) {
+            throw new FileDoesNotBelongToWorkspaceException(fileId, workspaceId);
+        }
+
+        if (fileAsset.getFileStatus() != FileStatus.DELETED) {
+            throw new FileNotDeletedException(fileId);
+        }
+
+        fileStorageService.deleteFile(fileAsset.getStoragePath());
+
+        fileAssetRepository.delete(fileAsset);
+    }
+
+
 
 }

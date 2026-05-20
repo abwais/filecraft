@@ -66,4 +66,32 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(FileAlreadyDeletedException.class)
+    public ResponseEntity<Map<String, Object>> handleFileAlreadyDeleted(
+            FileAlreadyDeletedException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", exception.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(FileNotDeletedException.class)
+    public ResponseEntity<Map<String, Object>> handleFileNotDeleted(
+            FileNotDeletedException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", exception.getMessage()
+                )
+        );
+    }
 }

@@ -31,4 +31,25 @@ public class FileStorageService {
         return Path.of(storagePath);
     }
 
+    public void deleteFile(String storagePath) throws Exception {
+        Path path = Path.of(storagePath);
+        Files.deleteIfExists(path);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
