@@ -34,4 +34,19 @@ public class WorkspaceController {
         return workspaceService.getAllWorkspaces();
     }
 
+    @PutMapping("/{id}")
+    public WorkspaceResponse updateWorkspace(
+            @PathVariable UUID id,
+            @Valid @RequestBody CreateWorkspaceRequest request
+    ) {
+        return workspaceService.updateWorkspace(id, request.getName());
+    }
+
+    @DeleteMapping("/{workspaceId}")
+    public void deleteWorkspace(@PathVariable UUID workspaceId) throws Exception{
+        workspaceService.deleteWorkspace(workspaceId);
+    }
+
+
+
 }

@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: filecraft-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: filecraft-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      FILECRAFT_STORAGE_ROOT: ${FILECRAFT_STORAGE_ROOT}
+    volumes:
+      - file-storage:/file-storage
+
+volumes:
+  postgres-data:
+  file-storage:

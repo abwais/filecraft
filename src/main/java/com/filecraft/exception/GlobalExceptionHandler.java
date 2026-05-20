@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -91,6 +94,48 @@ public class GlobalExceptionHandler {
                         "status", 409,
                         "error", "Conflict",
                         "message", exception.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(WorkspaceNotEmptyException.class)
+    public ResponseEntity<Map<String, Object>> handleWorkspaceNotEmpty(
+            WorkspaceNotEmptyException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", exception.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 413,
+                        "error", "Payload Too Large",
+                        "message", "File is too large. Maximum allowed size is 10MB."
+                )
+        );
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingServletRequestPart(
+            MissingServletRequestPartException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 400,
+                        "error", "Bad Request",
+                        "message", "Required file part is missing. Use form-data with key 'file'."
                 )
         );
     }

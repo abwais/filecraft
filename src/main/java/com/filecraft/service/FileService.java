@@ -77,6 +77,10 @@ public class FileService {
             mimeType = "application/octet-stream";
         }
 
+        if (!isAllowedMimeType(mimeType)) {
+            throw new IllegalArgumentException("File type is not allowed: " + mimeType);
+        }
+
         String sha256Hash = calculateSha256(multipartFile.getBytes());
 
         Path savedPath = fileStorageService.saveFile(
@@ -112,6 +116,13 @@ public class FileService {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(bytes);
         return HexFormat.of().formatHex(hash);
+    }
+
+    private boolean isAllowedMimeType(String mimeType) {
+        return mimeType.equals("text/plain")
+                || mimeType.equals("application/pdf")
+                || mimeType.equals("image/png")
+                || mimeType.equals("image/jpeg");
     }
 
     private FileResponse toResponse(FileAsset fileAsset) {

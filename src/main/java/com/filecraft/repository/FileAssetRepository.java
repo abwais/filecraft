@@ -12,4 +12,6 @@ public interface FileAssetRepository extends JpaRepository<FileAsset, UUID> {
             UUID workspaceId,
             FileStatus fileStatus
     );
+
+    boolean existsByWorkspaceId(UUID workspaceId);
 }
