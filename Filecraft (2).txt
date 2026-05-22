@@ -1,0 +1,90 @@
+FileCraft-Ideen
+
+Deine App soll werden:
+
+FileCraft = automatische Datei-Organisation + File-Tools + Studenten-Plattform.
+
+Kernideen:
+
+Dateien hochladen
+Dateien automatisch nach Inhalt erkennen
+Dateien automatisch sortieren
+Dateien automatisch umbenennen
+Tags/Kategorien erstellen
+PDF/File-Formatting
+PDF zusammenführen
+PDF komprimieren
+Bilder zu PDF
+Format konvertieren
+Chaotischen Desktop aufräumen
+Studenten-Workspaces
+Uni-Gruppen nach Uni-Name
+Kursräume pro Fach
+Chats pro Uni/Kurs
+Dateien mit Gruppen teilen
+Moodle verbinden
+Moodle-Aufgaben importieren
+Deadlines erkennen
+Erinnerungen vor Abgabe
+One-Click Moodle-Abgabe
+später Auto-Abgabe mit Opt-in
+Backend-Schritte in sinnvoller Reihenfolge
+Phase 1: Security-Fundament
+JWT fertig machen
+Login/Register stabilisieren
+User besitzt Workspaces
+User besitzt Files indirekt über Workspace
+Zugriffsschutz: niemand sieht fremde Workspaces/Files
+Phase 2: File-Organisation
+Category Entity
+Tag Entity
+File bekommt:
+category
+tags
+detectedSubject
+confidenceScore
+APIs:
+Kategorie setzen
+Tags setzen
+Dateien nach Kategorie filtern
+Suche nach Name/Inhalt/Tags
+Phase 3: Auto-Organisation
+Text aus Dateien extrahieren
+Datei-Inhalt analysieren
+Kategorie automatisch vorschlagen
+Auto-Rename vorschlagen
+User bestätigt Vorschläge
+später automatische Regeln
+Phase 4: File-Tools
+PDF merge
+PDF compress
+image-to-PDF
+exportierte Dateien als FileKind.EXPORT speichern
+Original-Datei mit Ergebnis-Datei verknüpfen
+Phase 5: Studenten-Plattform
+University
+StudyProgram
+Course
+CourseMembership
+Gruppen-Workspaces
+File-Sharing
+Rollen:
+OWNER
+ADMIN
+MEMBER
+Phase 6: Chat
+ChatRoom
+ChatMessage
+Chat pro Kurs
+Chat pro Workspace
+später WebSocket-Live-Chat
+Phase 7: Moodle
+MoodleAccount
+Moodle OAuth/API Token speichern
+Kurse importieren
+Aufgaben importieren
+Deadlines speichern
+Reminder-System
+Datei mit Aufgabe verbinden
+One-Click-Submit
+Auto-Submit nur mit ausdrücklicher Erlaubnis

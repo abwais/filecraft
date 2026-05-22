@@ -18,6 +18,10 @@ public class Workspace {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     public UUID getId() {
         return id;
     }
@@ -48,6 +52,14 @@ public class Workspace {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     @PrePersist

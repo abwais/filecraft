@@ -1,0 +1,71 @@
+FileCraft Roadmap
+Produktvision
+
+FileCraft = automatische Datei-Organisation + File-Tools + Studenten-Plattform.
+
+Ideen
+Dateien hochladen
+Automatische Sortierung nach Inhalt
+Automatische Umbenennung
+Tags und Kategorien
+Desktop automatisch aufräumen
+PDF zusammenführen
+PDF komprimieren
+Bilder zu PDF
+Studenten-Workspaces
+Uni-Gruppen
+Kursräume
+Chats
+Dateifreigabe
+Moodle-Integration
+Aufgaben importieren
+Deadlines erkennen
+Erinnerungen vor Abgabe
+One-Click-Abgabe
+Auto-Abgabe (Opt-in)
+Phase 1 – Security
+JWT
+Login/Register
+User besitzt Workspaces
+User besitzt Files
+Zugriffsschutz
+Phase 2 – File Organisation
+Category Entity
+Tag Entity
+Suche
+Filter
+Kategorisierung
+Phase 3 – Auto Organisation
+Textanalyse
+Auto-Kategorisierung
+Auto-Rename
+Regelwerk
+Phase 4 – File Tools
+PDF Merge
+PDF Compress
+Image-to-PDF
+Export-System
+Phase 5 – Studenten Plattform
+University
+StudyProgram
+Course
+Gruppen
+Rollen
+File Sharing
+Phase 6 – Chat
+ChatRoom
+ChatMessage
+Kurs-Chats
+Workspace-Chats
+WebSocket-Livechat
+Phase 7 – Moodle
+MoodleAccount
+MoodleAssignment
+Reminder-System
+One-Click-Submit
+Auto-Submit
+Nächster Schritt
+User ↔ Workspace Beziehung
+Workspace ↔ Files absichern
+JWT vollständig abschließen
+Tags & Kategorien
