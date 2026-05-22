@@ -5,8 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+
+import java.util.HashMap;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -136,6 +138,27 @@ public class GlobalExceptionHandler {
                         "status", 400,
                         "error", "Bad Request",
                         "message", "Required file part is missing. Use form-data with key 'file'."
+                )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(
+            MethodArgumentNotValidException exception
+    ) {
+        Map<String, String> fieldErrors = new HashMap<>();
+
+        exception.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 400,
+                        "error", "Validation Failed",
+                        "message", "Request validation failed",
+                        "fields", fieldErrors
                 )
         );
     }

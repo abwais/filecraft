@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: filecraft-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: filecraft
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "5319764"
     ports:
       - "5432:5432"
     volumes:
@@ -19,10 +19,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      FILECRAFT_STORAGE_ROOT: ${FILECRAFT_STORAGE_ROOT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/filecraft
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "5319764"
+      FILECRAFT_STORAGE_ROOT: /file-storage
+      FILECRAFT_JWT_SECRET: dev-secret-change-this-dev-secret-change-this
+      FILECRAFT_JWT_EXPIRATION_MS: 86400000
     volumes:
       - file-storage:/file-storage
 
