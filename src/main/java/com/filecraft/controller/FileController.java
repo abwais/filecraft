@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,38 +30,45 @@ public class FileController {
     @PostMapping
     public FileResponse uploadFile(
             @PathVariable UUID workspaceId,
-            @RequestParam("file") MultipartFile file
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
     ) throws Exception {
-        return fileService.uploadFile(workspaceId, file);
+        return fileService.uploadFile(workspaceId, file, authentication.getName());
     }
 
     @GetMapping
-    public List<FileResponse> getFilesByWorkspace(@PathVariable UUID workspaceId) {
-        return fileService.getFilesByWorkspace(workspaceId);
+    public List<FileResponse> getFilesByWorkspace(
+            @PathVariable UUID workspaceId,
+            Authentication authentication
+    ) throws Exception{
+        return fileService.getFilesByWorkspace(workspaceId, authentication.getName());
     }
 
     @GetMapping("/deleted")
     public List<FileResponse> getDeletedFilesByWorkspace(
-            @PathVariable UUID workspaceId
+            @PathVariable UUID workspaceId,
+            Authentication authentication
     ) {
-        return fileService.getDeletedFilesByWorkspace(workspaceId);
+        return fileService.getDeletedFilesByWorkspace(workspaceId, authentication.getName());
     }
 
     @GetMapping("/{fileId}")
     public FileResponse getFileById(
             @PathVariable UUID workspaceId,
-            @PathVariable UUID fileId
+            @PathVariable UUID fileId,
+            Authentication authentication
     ) {
-        return fileService.getFileById(workspaceId, fileId);
+        return fileService.getFileById(workspaceId, fileId, authentication.getName());
     }
 
     @GetMapping("/{fileId}/download")
     public ResponseEntity<Resource> downloadFile(
             @PathVariable UUID workspaceId,
-            @PathVariable UUID fileId
+            @PathVariable UUID fileId,
+            Authentication authentication
     ) throws Exception {
-        FileResponse fileResponse = fileService.getFileById(workspaceId, fileId);
-        Resource resource = fileService.downloadFile(workspaceId, fileId);
+        FileResponse fileResponse = fileService.getFileById(workspaceId, fileId, authentication.getName());
+        Resource resource = fileService.downloadFile(workspaceId, fileId, authentication.getName());
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(fileResponse.getMimeType()))
@@ -71,41 +79,40 @@ public class FileController {
                 .body(resource);
     }
 
-
     @DeleteMapping("/{fileId}")
     public void deleteFile(
             @PathVariable UUID workspaceId,
-            @PathVariable UUID fileId
+            @PathVariable UUID fileId,
+            Authentication authentication
     ) {
-        fileService.deleteFile(workspaceId, fileId);
+        fileService.deleteFile(workspaceId, fileId, authentication.getName());
     }
 
     @DeleteMapping("/{fileId}/permanent")
     public void permanentlyDeleteFile(
             @PathVariable UUID workspaceId,
-            @PathVariable UUID fileId
+            @PathVariable UUID fileId,
+            Authentication authentication
     ) throws Exception {
-        fileService.permanentlyDeleteFile(workspaceId, fileId);
+        fileService.permanentlyDeleteFile(workspaceId, fileId, authentication.getName());
     }
-
 
     @PatchMapping("/{fileId}/rename")
     public FileResponse renameFile(
             @PathVariable UUID workspaceId,
             @PathVariable UUID fileId,
-            @Valid @RequestBody RenameFileRequest request
+            @Valid @RequestBody RenameFileRequest request,
+            Authentication authentication
     ) {
-        return fileService.renameFile(workspaceId, fileId, request);
+        return fileService.renameFile(workspaceId, fileId, request, authentication.getName());
     }
 
     @PatchMapping("/{fileId}/restore")
     public FileResponse restoreFile(
             @PathVariable UUID workspaceId,
-            @PathVariable UUID fileId
+            @PathVariable UUID fileId,
+            Authentication authentication
     ) {
-        return fileService.restoreFile(workspaceId, fileId);
+        return fileService.restoreFile(workspaceId, fileId, authentication.getName());
     }
-
-
-
 }

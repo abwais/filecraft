@@ -2,13 +2,14 @@ package com.filecraft.service;
 
 import com.filecraft.dto.FileResponse;
 import com.filecraft.entity.FileAsset;
+import com.filecraft.entity.User;
 import com.filecraft.entity.Workspace;
 import com.filecraft.entity.enums.FileKind;
 import com.filecraft.entity.enums.FileStatus;
 import com.filecraft.repository.FileAssetRepository;
 import com.filecraft.repository.WorkspaceRepository;
 import com.filecraft.dto.RenameFileRequest;
-
+import com.filecraft.repository.UserRepository;
 import com.filecraft.exception.WorkspaceNotFoundException;
 import com.filecraft.exception.FileNotDeletedException;
 
@@ -34,20 +35,21 @@ public class FileService {
     private final WorkspaceRepository workspaceRepository;
     private final FileAssetRepository fileAssetRepository;
     private final FileStorageService fileStorageService;
-
+    private final UserRepository userRepository;
     public FileService(
             WorkspaceRepository workspaceRepository,
             FileAssetRepository fileAssetRepository,
-            FileStorageService fileStorageService
+            FileStorageService fileStorageService,
+            UserRepository userRepository
     ) {
         this.workspaceRepository = workspaceRepository;
         this.fileAssetRepository = fileAssetRepository;
         this.fileStorageService = fileStorageService;
+        this.userRepository = userRepository;
     }
 
-    public FileResponse uploadFile(UUID workspaceId, MultipartFile multipartFile) throws Exception {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    public FileResponse uploadFile(UUID workspaceId, MultipartFile multipartFile, String userEmail) throws Exception {
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         if (multipartFile.isEmpty()) {
             throw new IllegalArgumentException("File must not be empty");
@@ -146,9 +148,8 @@ public class FileService {
         return response;
     }
 
-    public List<FileResponse> getFilesByWorkspace(UUID workspaceId) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    public List<FileResponse> getFilesByWorkspace(UUID workspaceId, String userEmail) throws Exception {
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         return fileAssetRepository
                 .findByWorkspaceIdAndFileStatusOrderByCreatedAtDesc(
@@ -160,9 +161,8 @@ public class FileService {
                 .toList();
     }
 
-    public FileResponse getFileById(UUID workspaceId, UUID fileId) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    public FileResponse getFileById(UUID workspaceId, UUID fileId, String userEmail) {
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -178,9 +178,8 @@ public class FileService {
         return toResponse(fileAsset);
     }
 
-    public Resource downloadFile(UUID workspaceId, UUID fileId) throws Exception {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    public Resource downloadFile(UUID workspaceId, UUID fileId, String userEmail) throws Exception {
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -204,10 +203,9 @@ public class FileService {
         return resource;
     }
 
-    public void deleteFile(UUID workspaceId, UUID fileId) {
+    public void deleteFile(UUID workspaceId, UUID fileId, String userEmail) {
 
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -228,11 +226,11 @@ public class FileService {
     public FileResponse renameFile(
             UUID workspaceId,
             UUID fileId,
-            RenameFileRequest request
+            RenameFileRequest request,
+            String userEmail
     ) {
 
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -252,9 +250,8 @@ public class FileService {
         return toResponse(savedFileAsset);
     }
 
-    public List<FileResponse> getDeletedFilesByWorkspace(UUID workspaceId) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    public List<FileResponse> getDeletedFilesByWorkspace(UUID workspaceId, String userEmail) {
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         return fileAssetRepository
                 .findByWorkspaceIdAndFileStatusOrderByCreatedAtDesc(
@@ -266,10 +263,9 @@ public class FileService {
                 .toList();
     }
 
-    public FileResponse restoreFile(UUID workspaceId, UUID fileId) {
+    public FileResponse restoreFile(UUID workspaceId, UUID fileId, String userEmail) {
 
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -289,10 +285,9 @@ public class FileService {
         return toResponse(savedFileAsset);
     }
 
-    public void permanentlyDeleteFile(UUID workspaceId, UUID fileId) throws Exception {
+    public void permanentlyDeleteFile(UUID workspaceId, UUID fileId, String userEmail) throws Exception {
 
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+        Workspace workspace = getOwnedWorkspace(workspaceId, userEmail);
 
         FileAsset fileAsset = fileAssetRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
@@ -310,6 +305,17 @@ public class FileService {
         fileAssetRepository.delete(fileAsset);
     }
 
+    private User getCurrentUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    private Workspace getOwnedWorkspace(UUID workspaceId, String userEmail) {
+        User user = getCurrentUser(userEmail);
+
+        return workspaceRepository.findByIdAndOwnerId(workspaceId, user.getId())
+                .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+    }
 
 
 }
