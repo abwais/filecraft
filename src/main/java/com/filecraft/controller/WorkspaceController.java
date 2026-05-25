@@ -45,6 +45,9 @@ public class WorkspaceController {
             @PathVariable UUID id,
             Authentication authentication
     ) {
+        System.out.println("PATH ID = " + id);
+        System.out.println("AUTH USER = " + authentication.getName());
+
         return workspaceService.getWorkspace(
                 id,
                 authentication.getName()
@@ -68,7 +71,7 @@ public class WorkspaceController {
     public void deleteWorkspace(
             @PathVariable UUID workspaceId,
             Authentication authentication
-    ) throws Exception {
+    ) {
         workspaceService.deleteWorkspace(
                 workspaceId,
                 authentication.getName()

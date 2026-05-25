@@ -40,7 +40,7 @@ public class WorkspaceService {
     public List<WorkspaceResponse> getWorkspaces(String userEmail) {
         User user = getCurrentUser(userEmail);
 
-        return workspaceRepository.findByOwnerIdOrderByCreatedAtDesc(user.getId())
+        return workspaceRepository.findByOwner_IdOrderByCreatedAtDesc(user.getId())
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -49,7 +49,7 @@ public class WorkspaceService {
     public WorkspaceResponse getWorkspace(UUID id, String userEmail) {
         User user = getCurrentUser(userEmail);
 
-        Workspace workspace = workspaceRepository.findByIdAndOwnerId(id, user.getId())
+        Workspace workspace = workspaceRepository.findByIdAndOwner_Id(id, user.getId())
                 .orElseThrow(() -> new WorkspaceNotFoundException(id));
 
         return toResponse(workspace);
@@ -58,7 +58,7 @@ public class WorkspaceService {
     public WorkspaceResponse updateWorkspace(UUID id, String name, String userEmail) {
         User user = getCurrentUser(userEmail);
 
-        Workspace workspace = workspaceRepository.findByIdAndOwnerId(id, user.getId())
+        Workspace workspace = workspaceRepository.findByIdAndOwner_Id(id, user.getId())
                 .orElseThrow(() -> new WorkspaceNotFoundException(id));
 
         workspace.setName(name);
@@ -71,7 +71,7 @@ public class WorkspaceService {
     public void deleteWorkspace(UUID id, String userEmail) {
         User user = getCurrentUser(userEmail);
 
-        Workspace workspace = workspaceRepository.findByIdAndOwnerId(id, user.getId())
+        Workspace workspace = workspaceRepository.findByIdAndOwner_Id(id, user.getId())
                 .orElseThrow(() -> new WorkspaceNotFoundException(id));
 
         workspaceRepository.delete(workspace);

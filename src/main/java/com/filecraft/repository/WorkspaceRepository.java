@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface WorkspaceRepository extends JpaRepository<Workspace, UUID> {
 
-    List<Workspace> findByOwnerIdOrderByCreatedAtDesc(UUID ownerId);
+    List<Workspace> findByOwner_IdOrderByCreatedAtDesc(UUID ownerId);
 
-    Optional<Workspace> findByIdAndOwnerId(UUID id, UUID ownerId);
+    Optional<Workspace> findByIdAndOwner_Id(UUID id, UUID ownerId);
 }

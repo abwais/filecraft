@@ -313,7 +313,7 @@ public class FileService {
     private Workspace getOwnedWorkspace(UUID workspaceId, String userEmail) {
         User user = getCurrentUser(userEmail);
 
-        return workspaceRepository.findByIdAndOwnerId(workspaceId, user.getId())
+        return workspaceRepository.findByIdAndOwner_Id(workspaceId, user.getId())
                 .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
     }
 
